@@ -1,0 +1,33 @@
+name: Mend SAST Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  mend-sast:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Download Mend CLI
+      run: |
+        curl -L https://downloads.mend.io/cli/linux_amd64/mend -o mend
+        chmod +x mend
+
+    - name: Run Mend SAST Scan
+      run: |
+        ./mend code --app mend-sast-gradle-demo --product gradle-test --non-interactive --source .
+      env:
+        MEND_USER_KEY: ${{ secrets.MEND_USER_KEY }}
+
